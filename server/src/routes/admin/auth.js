@@ -10,7 +10,6 @@ router.post("/admin/signin", validateSigninRequest, isRequestValidated, signin);
 router.post("/admin/signout", signout);
 
 router.post("/profile", requireSignin, (req, res) => {
-  console.log(req.user)
   res.json({ user: "profile"})
 })
 
