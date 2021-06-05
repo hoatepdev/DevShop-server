@@ -17,8 +17,9 @@ exports.addItemToCart = (req, res) => {
 
       req.body.cartItems.forEach((cartItem) => {
         const product = cartItem.product;
-        const item = cart.cartItems.find((c) => c.product == product);
+        const item = cart.cartItems.find((c) => c.product === product);
         let condition, update;
+
         if (item) {
           condition = { user: req.user._id, "cartItems.product": product };
           update = {
@@ -36,6 +37,7 @@ exports.addItemToCart = (req, res) => {
         }
         promiseArray.push(runUpdate(condition, update));
       });
+
       Promise.all(promiseArray)
         .then((response) => res.status(201).json({ response }))
         .catch((error) => res.status(400).json({ error }));
@@ -54,6 +56,7 @@ exports.addItemToCart = (req, res) => {
     }
   });
 };
+
 exports.getCartItems = (req, res) => {
   Cart.findOne({ user: req.user._id })
     .populate("cartItems.product", "_id name price productPictures")
@@ -69,10 +72,29 @@ exports.getCartItems = (req, res) => {
             price: item.product.price,
             qty: item.quantity,
           };
-
         });
         res.status(200).json({ cartItems });
       }
     });
-  //}
+};
+
+exports.removeCartItems = (req, res) => {
+  const { productId } = req.body.payload;
+  if (productId) {
+    Cart.updateOne(
+      { user: req.user._id },
+      {
+        $pull: {
+          cartItems: {
+            product: productId,
+          },
+        },
+      }
+    ).exec((error, result) => {
+      if (error) return res.status(400).json({ error });
+      if (result) {
+        res.status(202).json({ result });
+      }
+    });
+  }
 };

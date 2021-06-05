@@ -7,7 +7,7 @@ function createCategories(categories, parentId = null) {
   let category;
 
   if (parentId == null) {
-    category = categories.filter((cat) => cat.parentId == null);
+    category = categories.filter((cat) => cat.parentId == undefined);
   } else {
     category = categories.filter((cat) => cat.parentId == parentId);
   }
@@ -45,6 +45,7 @@ exports.addCategory = (req, res) => {
   }
 
   const cat = new Category(categoryObj);
+  
   cat.save((err, category) => {
     if (err) return res.status(400).json({ err });
     if (category) return res.status(201).json({ category });
